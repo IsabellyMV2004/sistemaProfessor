@@ -1,3 +1,4 @@
+import { Button } from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -103,6 +104,16 @@ export default function FormCadProdutos(props) {
                     />
                     <Form.Control.Feedback type="invalid">Por favor, informe a data de validade do produto!</Form.Control.Feedback>
                 </Form.Group>
+            </Row>
+            <Row className='mt-2 mb-2'>
+                <Col md={1}>
+                <Button>Confirmar</Button>
+                </Col>
+                <Col md={{offset:1}} >
+                    <Button onClick={() => {
+                        props.setExibirTabela(true);
+                    }}>Voltar</Button>
+                </Col>
             </Row>
         </Form>
     );

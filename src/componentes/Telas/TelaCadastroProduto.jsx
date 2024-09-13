@@ -19,7 +19,7 @@ export default function TelaCadastroProduto(props) {
                 {
                     exibirTAbela ?
                     <TabelaProdutos listaDeProdutos={produtos} setExibirTabela={setExibirTabela}/> :
-                    <FormCadProdutos setExibirTabela={setExibirTabela}/>
+                    <FormCadProdutos listaDeProdutos={produtos} setExibirTabela={setExibirTabela}/>
                     /*
                     Se                  então           se não   então
                     exibirTAbela ?  <TabelaProdutos/>    :       <FormCadProdutos />

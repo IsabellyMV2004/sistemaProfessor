@@ -3,7 +3,7 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Row from 'react-bootstrap/Row';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function FormCadProdutos(props) {
     const [produto, setProduto] = useState({
@@ -15,12 +15,48 @@ export default function FormCadProdutos(props) {
         urlImagem:"",
         dataValidade:""
     });
+
+    useEffect(() => {
+        if (props.modoEdicao && props.produtoSelecionado) {
+            setProduto({
+                codigo: props.produtoSelecionado.codigo,
+                descricao: props.produtoSelecionado.descricao,
+                precoCusto: props.produtoSelecionado.precoCusto,
+                precoVenda: props.produtoSelecionado.precoVenda,
+                qtdEstoque: props.produtoSelecionado.qtdEstoque,
+                urlImagem: props.produtoSelecionado.urlImagem,
+                dataValidade: props.produtoSelecionado.dataValidade
+            });
+        }
+        else {
+            setProduto({
+                codigo: 0,
+                descricao: "",
+                precoCusto: 0,
+                precoVenda: 0,
+                qtdEstoque: 0,
+                urlImagem: "",
+                dataValidade: ""
+            });
+        }
+    }, [props.modoEdicao, props.produtoSelecionado]);
+
     const [formValidado, setFormValidado] = useState(false);
     function manipularSubmissao(evento){
         const form = evento.currentTarget;
         if(form.checkValidity()){
             // cadastrar o produto
-            props.listaDeProdutos.push(produto);
+            if (props.modoEdicao){
+                // Atualiza o produto existente
+                const listaAtualizada = props.listaDeProdutos.map(item => 
+                    item.codigo === produto.codigo ? produto : item
+                );
+                props.setListaDeProdutos(listaAtualizada);
+            }
+            else{
+                // Adiciona um novo produto
+                props.setListaDeProdutos([...props.listaDeProdutos, produto]);
+            }
             // exibir tabela com o produto incluido
             props.setExibirTabela(true);
         }

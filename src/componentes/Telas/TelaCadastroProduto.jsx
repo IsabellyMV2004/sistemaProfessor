@@ -6,7 +6,10 @@ import TabelaProdutos from "./Tabelas/TabelaProdutos";
 import {produtos} from "../../dados/mockProdutos";
 
 export default function TelaCadastroProduto(props) {
-    const [exibirTAbela, setExibirTabela] = useState(true);
+    const [exibirTabela, setExibirTabela] = useState(true);
+    const [listaDeProdutos, setListaDeProdutos] = useState(produtos);
+    const [modoEdicao, setModoEdicao] = useState(false);
+    const [produtoSelecionado, setProdutoSelecionado] = useState(produtos);
 
     return (
         <div>
@@ -17,9 +20,23 @@ export default function TelaCadastroProduto(props) {
                     </h2>
                 </Alert>
                 {
-                    exibirTAbela ?
-                    <TabelaProdutos listaDeProdutos={produtos} setExibirTabela={setExibirTabela}/> :
-                    <FormCadProdutos listaDeProdutos={produtos} setExibirTabela={setExibirTabela}/>
+                    exibirTabela ?
+                    <TabelaProdutos
+                    listaDeProdutos={listaDeProdutos}
+                    setListaDeProdutos={setListaDeProdutos}
+                    setModoEdicao={setModoEdicao}
+                    setProdutoSelecionado={setProdutoSelecionado}
+                    setExibirTabela={setExibirTabela}
+                /> :
+                <FormCadProdutos
+                    listaDeProdutos={listaDeProdutos}
+                    setListaDeProdutos={setListaDeProdutos}
+                    setModoEdicao={setModoEdicao}
+                    setProdutoSelecionado={setProdutoSelecionado}
+                    setExibirTabela={setExibirTabela}
+                    modoEdicao={modoEdicao}
+                    produtoSelecionado={produtoSelecionado}
+                />
                     /*
                     Se                  então           se não   então
                     exibirTAbela ?  <TabelaProdutos/>    :       <FormCadProdutos />

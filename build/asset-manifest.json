@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/sistemaProfessor/static/css/main.d221dc40.css",
+    "main.js": "/sistemaProfessor/static/js/main.2cd58456.js",
+    "static/media/pagina404.png": "/sistemaProfessor/static/media/pagina404.4bf0805d8d55a31c5142.png",
+    "index.html": "/sistemaProfessor/index.html",
+    "main.d221dc40.css.map": "/sistemaProfessor/static/css/main.d221dc40.css.map",
+    "main.2cd58456.js.map": "/sistemaProfessor/static/js/main.2cd58456.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d221dc40.css",
+    "static/js/main.2cd58456.js"
+  ]
+}

@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 import { useState, useEffect } from 'react';
 
 export default function FormCadProdutos(props) {
-    const [produto, setProduto] = useState({
+ /*   const [produto, setProduto] = useState({      MINHA VERSÃO DO TRABALHO
         codigo:0,
         descricao:"",
         precoCusto:0,
@@ -14,9 +14,10 @@ export default function FormCadProdutos(props) {
         qtdEstoque:0,
         urlImagem:"",
         dataValidade:""
-    });
+    });*/
+    const [produto, setProduto] = useState(props.produtoSelecionado);
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (props.modoEdicao && props.produtoSelecionado) {
             setProduto({
                 codigo: props.produtoSelecionado.codigo,
@@ -39,13 +40,13 @@ export default function FormCadProdutos(props) {
                 dataValidade: ""
             });
         }
-    }, [props.modoEdicao, props.produtoSelecionado]);
+    }, [props.modoEdicao, props.produtoSelecionado]);*/
 
     const [formValidado, setFormValidado] = useState(false);
     function manipularSubmissao(evento){
         const form = evento.currentTarget;
         if(form.checkValidity()){
-            // cadastrar o produto
+        /*    // cadastrar o produto
             if (props.modoEdicao){
                 // Atualiza o produto existente
                 const listaAtualizada = props.listaDeProdutos.map(item => 
@@ -59,6 +60,44 @@ export default function FormCadProdutos(props) {
             }
             // exibir tabela com o produto incluido
             props.setExibirTabela(true);
+            */
+            // cadastrar o produto
+            if (!props.modoEdicao){
+                props.setListaDeProdutos([...props.listaDeProdutos, produto]);
+                props.setExibirTabela(true);
+                
+            }
+            else{
+               // editar produto
+               // altera a ordem dos registros
+                props.setListaDeProdutos([...props.listaDeProdutos.filter(
+                    (item) => {
+                            return item.codigo !== produto.codigo;
+                    }
+                ),produto]);
+
+                // não altera a ordem dos registros
+                props.setListaDeProdutos(props.listaDeProdutos.map((item) => {
+                   // return item.codigo !== produto.codigo ? item:produto;
+                    if(item.codigo !== produto.codigo)
+                        return item
+                    else
+                        return produto
+                }));
+
+                //voltar para o modo 
+                props.setModoEdicao(false);
+                props.setProdutoSelecionado({
+                    codigo:0,
+                    descricao:"",
+                    precoCusto:0,
+                    precoVenda:0,
+                    qtdEstoque:0,
+                    urlImagem:"",
+                    dataValidade:""
+                })
+                props.setExibirTabela(true);
+            }            
         }
         else{
             setFormValidado(true);
@@ -85,6 +124,7 @@ export default function FormCadProdutos(props) {
                         id="codigo"
                         name="codigo"
                         value={produto.codigo}
+                        disabled={props.modoEdicao}
                         onChange={manipularMudanca}
                     />
                     <Form.Control.Feedback type='invalid'>Por favor, informe o código do produto!</Form.Control.Feedback>
@@ -190,7 +230,7 @@ export default function FormCadProdutos(props) {
             </Row>
             <Row className='mt-2 mb-2'>
                 <Col md={1}>
-                <Button type="submit">Confirmar</Button>
+                <Button type="submit">{props.modoEdicao ? "Alterar":"Confirmar"}</Button>
                 </Col>
                 <Col md={{offset:1}} >
                     <Button onClick={() => {

@@ -89,6 +89,7 @@ export default function TabelaProdutos(props) {
                        }
                     </tbody>
                 </Table>
+                <p>Quantidade de produtos cadastrados: {props.listaDeProdutos.length}</p>
             </Container>
         </>
     );

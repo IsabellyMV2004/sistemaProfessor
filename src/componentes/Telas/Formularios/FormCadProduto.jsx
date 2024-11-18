@@ -1,119 +1,109 @@
-import { Button } from 'react-bootstrap';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Row from 'react-bootstrap/Row';
+import { Button, Spinner, Col, Form, InputGroup,
+         Row
+ } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import { consultarCategoria } from '../../../servicos/servicoCategoria';
+import { alterarProduto, gravarProduto } from '../../../servicos/servicoProduto';
+
+import toast, {Toaster} from 'react-hot-toast';
 
 export default function FormCadProdutos(props) {
- /*   const [produto, setProduto] = useState({      MINHA VERSÃO DO TRABALHO
-        codigo:0,
-        descricao:"",
-        precoCusto:0,
-        precoVenda:0,
-        qtdEstoque:0,
-        urlImagem:"",
-        dataValidade:""
-    });*/
     const [produto, setProduto] = useState(props.produtoSelecionado);
-
-    /*useEffect(() => {
-        if (props.modoEdicao && props.produtoSelecionado) {
-            setProduto({
-                codigo: props.produtoSelecionado.codigo,
-                descricao: props.produtoSelecionado.descricao,
-                precoCusto: props.produtoSelecionado.precoCusto,
-                precoVenda: props.produtoSelecionado.precoVenda,
-                qtdEstoque: props.produtoSelecionado.qtdEstoque,
-                urlImagem: props.produtoSelecionado.urlImagem,
-                dataValidade: props.produtoSelecionado.dataValidade
-            });
-        }
-        else {
-            setProduto({
-                codigo: 0,
-                descricao: "",
-                precoCusto: 0,
-                precoVenda: 0,
-                qtdEstoque: 0,
-                urlImagem: "",
-                dataValidade: ""
-            });
-        }
-    }, [props.modoEdicao, props.produtoSelecionado]);*/
-
     const [formValidado, setFormValidado] = useState(false);
-    function manipularSubmissao(evento){
+    const [categorias, setCategorias] = useState([]);
+    const [temCategorias, setTemCategorias] = useState(false);
+
+    useEffect(()=>{
+        consultarCategoria().then((resultado)=>{
+            if (Array.isArray(resultado)){
+                setCategorias(resultado);
+                setTemCategorias(true);
+            }
+            else{
+                toast.error("Não foi possível carregar as categorias");
+            }
+        }).catch((erro)=>{
+            setTemCategorias(false);
+            toast.error("Não foi possível carregar as categorias");
+        });
+        
+    },[]); //didMount
+
+    function selecionarCategoria(evento){
+        setProduto({...produto, 
+                       categoria:{
+                        codigo: evento.currentTarget.value
+
+                       }});
+    }
+    
+        // Função para manipular a submissão do formulário
+    function manipularSubmissao(evento) {
         const form = evento.currentTarget;
-        if(form.checkValidity()){
-        /*    // cadastrar o produto
-            if (props.modoEdicao){
-                // Atualiza o produto existente
-                const listaAtualizada = props.listaDeProdutos.map(item => 
-                    item.codigo === produto.codigo ? produto : item
-                );
-                props.setListaDeProdutos(listaAtualizada);
-            }
-            else{
-                // Adiciona um novo produto
-                props.setListaDeProdutos([...props.listaDeProdutos, produto]);
-            }
-            // exibir tabela com o produto incluido
-            props.setExibirTabela(true);
-            */
-            // cadastrar o produto
-            if (!props.modoEdicao){
-                props.setListaDeProdutos([...props.listaDeProdutos, produto]);
-                props.setExibirTabela(true);
-                
-            }
-            else{
-               // editar produto
-               // altera a ordem dos registros
-                props.setListaDeProdutos([...props.listaDeProdutos.filter(
-                    (item) => {
-                            return item.codigo !== produto.codigo;
-                    }
-                ),produto]);
+        if (form.checkValidity()) {
+            // Formatar a data de validade para o formato "yyyy-mm-dd"
+            const dataValidadeFormatada = new Date(produto.dataValidade).toLocaleDateString('pt-BR');
+            produto.dataValidade = dataValidadeFormatada;
 
-                // não altera a ordem dos registros
-                props.setListaDeProdutos(props.listaDeProdutos.map((item) => {
-                   // return item.codigo !== produto.codigo ? item:produto;
-                    if(item.codigo !== produto.codigo)
-                        return item
-                    else
-                        return produto
-                }));
+            if (!props.modoEdicao) {
+                // Cadastrar o produto
+                gravarProduto(produto)
+                    .then((resultado) => {
+                        if (resultado.status) {
+                            props.setExibirTabela(true);
+                        } else {
+                            toast.error(resultado.mensagem);
+                        }
+                    });
+            } else {
+                // Editar o produto
+                alterarProduto(produto)
+                    .then((resultado) => {
+                        if (resultado.status) {
+                            props.setListaDeProdutos(
+                                props.listaDeProdutos.map((item) => {
+                                    if (item.codigo !== produto.codigo) return item;
+                                    else return produto;
+                                })
+                            );
 
-                //voltar para o modo 
-                props.setModoEdicao(false);
-                props.setProdutoSelecionado({
-                    codigo:0,
-                    descricao:"",
-                    precoCusto:0,
-                    precoVenda:0,
-                    qtdEstoque:0,
-                    urlImagem:"",
-                    dataValidade:""
-                })
-                props.setExibirTabela(true);
-            }            
-        }
-        else{
+                            // Após a alteração, resetar o estado para o modo de adição
+                            props.setModoEdicao(false); // Mudar para o modo de adicionar
+                            
+                            // Resetar o produto selecionado
+                            props.setProdutoSelecionado({
+                                codigo: 0,
+                                descricao: "",
+                                precoCusto: 0,
+                                precoVenda: 0,
+                                qtdEstoque: 0,
+                                urlImagem: "",
+                                dataValidade: "",
+                                categoria: {}
+                            });
+
+                            // Mostrar a tabela novamente
+                            props.setExibirTabela(true);
+                        } else {
+                            toast.error(resultado.mensagem);
+                        }
+                    });
+            }
+        } else {
             setFormValidado(true);
         }
         evento.preventDefault();
         evento.stopPropagation();
     }
 
-    function manipularMudanca(evento){
+    function manipularMudanca(evento) {
         const elemento = evento.target.name;
         const valor = evento.target.value;
-                // ... operador de espalhamento
-        setProduto({...produto, [elemento]:valor});
+        setProduto({ ...produto, [elemento]: valor });
     }
 
     return (
+        
         <Form noValidate validated={formValidado} onSubmit={manipularSubmissao}>
             <Row className="mb-4">
                 <Form.Group as={Col} md="4">
@@ -215,29 +205,51 @@ export default function FormCadProdutos(props) {
                 </Form.Group>
             </Row>
             <Row className="mb-4">
-                <Form.Group as={Col} md="12">
-                    <Form.Label>Válido até:</Form.Label>
-                    <Form.Control
-                        required
-                        type="text"
-                        id="dataValidade"
-                        name="dataValidade"
-                        value={produto.dataValidade}
-                        onChange={manipularMudanca}
-                    />
-                    <Form.Control.Feedback type="invalid">Por favor, informe a data de validade do produto!</Form.Control.Feedback>
+                 <Form.Group as={Col} md="4">
+                <Form.Label>Válido até:</Form.Label>
+                <Form.Control
+                    required
+                    type="date" 
+                    id="dataValidade"
+                    name="dataValidade"
+                    value={produto.dataValidade ? produto.dataValidade.split('T')[0] : ''}  
+                    onChange={manipularMudanca}
+                />
+                <Form.Control.Feedback type="invalid">Por favor, informe a data de validade do produto!</Form.Control.Feedback>
+            </Form.Group>
+                <Form.Group as={Col} md={7}>
+                    <Form.Label>Categoria:</Form.Label>
+                    <Form.Select id='categoria' 
+                                 name='categoria'
+                                 onChange={selecionarCategoria}>
+                        {// criar em tempo de execução as categorias existentes no banco de dados
+                            categorias.map((categoria) =>{
+                                return <option value={categoria.codigo}>
+                                            {categoria.descricao}
+                                       </option>
+                            })
+                        }
+                        
+                    </Form.Select>
+                </Form.Group>
+                <Form.Group as={Col} md={1}>
+                    {
+                      !temCategorias ? <Spinner className='mt-4' animation="border" variant="success" />
+                      : ""
+                    }
                 </Form.Group>
             </Row>
             <Row className='mt-2 mb-2'>
                 <Col md={1}>
-                <Button type="submit">{props.modoEdicao ? "Alterar":"Confirmar"}</Button>
+                    <Button type="submit" disabled={!temCategorias}>{props.modoEdicao ? "Alterar" : "Confirmar"}</Button>
                 </Col>
-                <Col md={{offset:1}} >
+                <Col md={{ offset: 1 }}>
                     <Button onClick={() => {
                         props.setExibirTabela(true);
                     }}>Voltar</Button>
                 </Col>
             </Row>
+            <Toaster position="top-right"/>
         </Form>
     );
 }
